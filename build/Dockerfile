@@ -25,4 +25,4 @@ COPY --from=build ${HOMEDIR} ${HOME}
 
 ENTRYPOINT ["${OPERATOR}"]
 
-USER ${USER_UID}
+USER 1001
