@@ -34,6 +34,7 @@ var (
 		{Group: "", Version: "v1", Kind: "ServiceAccount"},
 		{Group: "apps", Version: "v1", Kind: "StatefulSet"},
 		{Group: "admissionregistration.k8s.io", Version: "v1beta1", Kind: "ValidatingWebhookConfiguration"},
+		{Group: "integreatly.org", Version: "v1alpha1", Kind: "Postgres"},
 	}
 
 	watchedKubeflowResources = []schema.GroupVersionKind{
