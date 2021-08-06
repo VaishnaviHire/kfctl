@@ -29,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/rest"
 	apiserv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1"
+	apiextensionv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -37,6 +38,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
 )
 
 const (
@@ -559,6 +561,20 @@ func getClusterServiceVersion(cfg *rest.Config, watchNameSpace string) (*olm.Clu
 // operatorUninstall deletes all the externally generated resources. This includes monitoring resources and applications
 // installed by KfDef.
 func (r *ReconcileKfDef) operatorUninstall(request reconcile.Request) error {
+
+	// Check if Postgress CRD
+	postgresInstancesCRD := &apiextensionv1.CustomResourceDefinition{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "postgres.integreatly.org",
+			Namespace: request.Namespace,
+		},
+	}
+
+	err := r.client.Delete(context.TODO(), postgresInstancesCRD)
+	if err == nil || !errors.IsNotFound(err){
+		return fmt.Errorf("waiting for postgress CRD to be deleted: %v", err)
+	}
+
 
 	// Delete namespace for the given request
 	namespace := &v1.Namespace{ObjectMeta:metav1.ObjectMeta{
